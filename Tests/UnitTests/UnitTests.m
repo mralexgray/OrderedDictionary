@@ -5,37 +5,25 @@
 //  Copyright (c) 2012 Charcoal Design. All rights reserved.
 //
 
-
-#import <XCTest/XCTest.h>
-#import "OrderedDictionary.h"
-
+@import XCTest;
+@import AtoZUniversal;
 
 #pragma GCC diagnostic ignored "-Wdirect-ivar-access"
 
+_XCTCase(OrderedDictionaryTests) { MutableOrderedDictionary *d; }
+_XCTUp(
 
-@interface UnitTests : XCTestCase
+  d = [MutableOrderedDictionary dictionary];
+  d[@"0"] = @1;
+  d[@"1"] = @2;
+  d[@"3"] = @4;
+  d[@"2"] = @3;
+  d[@"1"] = @7;
+  [d removeObjectForKey:@"3"];
+)
 
-@end
+_XCTest(Assumptions,
 
-
-@implementation UnitTests
-{
-    MutableOrderedDictionary *d;
-}
-
-- (void)setUp
-{
-    d = [MutableOrderedDictionary dictionary];
-    d[@"0"] = @1;
-    d[@"1"] = @2;
-    d[@"3"] = @4;
-    d[@"2"] = @3;
-    d[@"1"] = @7;
-    [d removeObjectForKey:@"3"];
-}
-
-- (void)testAssumptions
-{
     NSMutableDictionary *d2 = [NSMutableDictionary dictionary];
     d2[@"0"] = @1;
     d2[@"1"] = @2;
@@ -48,24 +36,24 @@
     XCTAssertEqualObjects(d[@"0"], @1);
     XCTAssertEqualObjects(d[@"1"], @7);
     XCTAssertEqualObjects(d[@"2"], @3);
-}
+)
 
-- (void)testOrderPreserved
-{
+_XCTest(OrderPreserved,
+
     XCTAssertEqualObjects([d allKeys], (@[@"0",@"1",@"2"]));
     XCTAssertEqualObjects(d[0], @1);
     XCTAssertEqualObjects(d[1], @7);
     XCTAssertEqualObjects(d[2], @3);
-}
+)
 
-- (void)testIndexOfKey
-{
+_XCTest(IndexOfKey,
+
     XCTAssertEqual([d indexOfKey:@"2"], 2);
     XCTAssertEqual([d indexOfKey:@"1"], 1);
-}
+)
 
-- (void)testNSCoding
-{
+_XCTest(NSCoding,
+
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:d];
     MutableOrderedDictionary *d2 = [NSKeyedUnarchiver unarchiveObjectWithData:data];
     
@@ -74,7 +62,7 @@
     XCTAssertEqualObjects(d[0], @1);
     XCTAssertEqualObjects(d[1], @7);
     XCTAssertEqualObjects(d[2], @3);
-}
+)
 
 static NSString *samplePlist()
 {
@@ -92,18 +80,18 @@ static NSString *samplePlist()
     "</plist>\n";
 }
 
-- (void)testWriting
-{
+_XCTest(Writing,
+
     NSString *path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"OrderedDictionary.plist"];
     XCTAssertTrue([d writeToFile:path atomically:YES]);
     NSError *error = nil;
     NSString *plist = [NSString stringWithContentsOfFile:path usedEncoding:NULL error:&error];
     XCTAssertNil(error);
     XCTAssertEqualObjects(plist, samplePlist());
-}
+)
 
-- (void)testReading
-{
+_XCTest(Reading,
+
     NSString *path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"OrderedDictionary.plist"];
     NSError *error = nil;
     XCTAssertTrue([samplePlist() writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:&error]);
@@ -118,14 +106,14 @@ static NSString *samplePlist()
     XCTAssertEqualObjects([d2 class], [MutableOrderedDictionary class]);
     XCTAssertEqualObjects([d2 allKeys], (@[@"0",@"1",@"2"]));
     XCTAssertEqualObjects(d, d2);
-}
+)
 
-- (void)testDescription
-{
+_XCTest(Description,
+
     NSDictionary *d2 = [NSDictionary dictionaryWithDictionary:d];
     XCTAssertEqualObjects([d description], [d2 description]);
     XCTAssertEqualObjects([d descriptionWithLocale:[NSLocale currentLocale]], [d2 descriptionWithLocale:[NSLocale currentLocale]]);
     XCTAssertEqualObjects([d descriptionWithLocale:[NSLocale currentLocale] indent:1], [d descriptionWithLocale:[NSLocale currentLocale] indent:1]);
-}
+)
 
 @end
